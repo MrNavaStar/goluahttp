@@ -1,0 +1,5 @@
+github.com/aarzilli/golua v0.0.0-20210507130708-11106aa57765/go.mod h1:hMjfaJVSqVnxenMlsxrq3Ni+vrm9Hs64tU4M7dhUoO4=
+github.com/aarzilli/golua v0.0.0-20240926082618-dc217320bb4d h1:pXps8msQt1KhEK7FjUHRVToqWMUV3DYSzuymktg1/Ek=
+github.com/aarzilli/golua v0.0.0-20240926082618-dc217320bb4d/go.mod h1:hMjfaJVSqVnxenMlsxrq3Ni+vrm9Hs64tU4M7dhUoO4=
+github.com/fiatjaf/lunatico v1.5.1 h1:+GITY3Sb/PUMJpFpBUCUm+C8e4imh53KFvcrDtEj4R8=
+github.com/fiatjaf/lunatico v1.5.1/go.mod h1:dwBFpzqlNH0kKwMHofhlnD6/Sjl5eUf6ADdHe7XBeIk=
