@@ -13,10 +13,10 @@ import (
 )
 
 type luaResponse struct {
-	Status int
-	Body string
-	Size int
-	Url string
+	Status int `json:"status"`
+	Body string `json:"body"`
+	Size int `json:"size"`
+	Url string `json:"url"`
 }
 
 var client = http.Client{}
@@ -68,33 +68,35 @@ func doRequest(L *lua.State, method string) (res luaResponse, err error) {
 		return
 	}
 
-	options := lunatico.ReadTable(L, -1).(map[string]interface{})
-	if options != nil {
-		forOption(options, "cookies", func(cookie string, value string) {
-			req.AddCookie(&http.Cookie{Name: cookie, Value: value})
-		})
-		forOption(options, "query", func(query string, value string) {
-			req.URL.Query().Add(query, value)
-		})
-		forOption(options, "headers", func(header string, value string) {
-			req.Header.Set(header, value)
-		})
+	if L.IsTable(-1) {
+		options := lunatico.ReadTable(L, -1).(map[string]interface{})
+		if options != nil {
+			forOption(options, "cookies", func(cookie string, value string) {
+				req.AddCookie(&http.Cookie{Name: cookie, Value: value})
+			})
+			forOption(options, "query", func(query string, value string) {
+				req.URL.Query().Add(query, value)
+			})
+			forOption(options, "headers", func(header string, value string) {
+				req.Header.Set(header, value)
+			})
 
-		if body, ok := options["body"].(string); ok {
-			req.ContentLength = int64(len(body))
-			req.Body = io.NopCloser(strings.NewReader(body))
-		}
+			if body, ok := options["body"].(string); ok {
+				req.ContentLength = int64(len(body))
+				req.Body = io.NopCloser(strings.NewReader(body))
+			}
 
-		if timeout, ok := options["timeout"].(int64); ok {
-			ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond * time.Duration(timeout))
-			req = req.WithContext(ctx)
-			defer cancel()
-		}
+			if timeout, ok := options["timeout"].(int64); ok {
+				ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond * time.Duration(timeout))
+				req = req.WithContext(ctx)
+				defer cancel()
+			}
 
-		if user, ok := options["user"].(string); ok {
-			if pass, ok := options["pass"].(string); ok {
-				req.SetBasicAuth(user, pass)
-			} 
+			if user, ok := options["user"].(string); ok {
+				if pass, ok := options["pass"].(string); ok {
+					req.SetBasicAuth(user, pass)
+				} 
+			}
 		}
 	}
 
