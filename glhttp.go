@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/aarzilli/golua/lua"
-	"github.com/fiatjaf/lunatico"
+	"github.com/mrnavastar/lunatico"
 )
 
 type luaResponse struct {
