@@ -9,7 +9,7 @@ import (
 	"time"
 
 	"github.com/aarzilli/golua/lua"
-	"github.com/mrnavastar/lunatico"
+	"github.com/stevedonovan/luar"
 )
 
 type luaResponse struct {
@@ -69,34 +69,34 @@ func doRequest(L *lua.State, method string) (res luaResponse, err error) {
 	}
 
 	if L.IsTable(-1) {
-		options := lunatico.ReadTable(L, -1).(map[string]interface{})
-		if options != nil {
-			forOption(options, "cookies", func(cookie string, value string) {
-				req.AddCookie(&http.Cookie{Name: cookie, Value: value})
-			})
-			forOption(options, "query", func(query string, value string) {
-				req.URL.Query().Add(query, value)
-			})
-			forOption(options, "headers", func(header string, value string) {
-				req.Header.Set(header, value)
-			})
+		var options map[string]interface{}
+		luar.LuaToGo(L, -1, options)
 
-			if body, ok := options["body"].(string); ok {
-				req.ContentLength = int64(len(body))
-				req.Body = io.NopCloser(strings.NewReader(body))
-			}
+		forOption(options, "cookies", func(cookie string, value string) {
+			req.AddCookie(&http.Cookie{Name: cookie, Value: value})
+		})
+		forOption(options, "query", func(query string, value string) {
+			req.URL.Query().Add(query, value)
+		})
+		forOption(options, "headers", func(header string, value string) {
+			req.Header.Set(header, value)
+		})
 
-			if timeout, ok := options["timeout"].(int64); ok {
-				ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond * time.Duration(timeout))
-				req = req.WithContext(ctx)
-				defer cancel()
-			}
+		if body, ok := options["body"].(string); ok {
+			req.ContentLength = int64(len(body))
+			req.Body = io.NopCloser(strings.NewReader(body))
+		}
 
-			if user, ok := options["user"].(string); ok {
-				if pass, ok := options["pass"].(string); ok {
-					req.SetBasicAuth(user, pass)
-				} 
-			}
+		if timeout, ok := options["timeout"].(int64); ok {
+			ctx, cancel := context.WithTimeout(context.Background(), time.Millisecond * time.Duration(timeout))
+			req = req.WithContext(ctx)
+			defer cancel()
+		}
+
+		if user, ok := options["user"].(string); ok {
+			if pass, ok := options["pass"].(string); ok {
+				req.SetBasicAuth(user, pass)
+			} 
 		}
 	}
 
@@ -126,6 +126,6 @@ func doRequestAndPush(L *lua.State, method string) int {
 		return 2
 	}
 
-	lunatico.PushAny(L, resp)
+	luar.GoToLua(L, resp)
 	return 1
 }
